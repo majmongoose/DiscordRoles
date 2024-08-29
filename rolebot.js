@@ -40,6 +40,13 @@ async function createButtonsFromCSV() {
 
     for (let i = 0; i < rows.length; i++) {
         const [roleName, buttonName] = rows[i];
+
+            // Validate roleName and buttonName
+        if (!roleName || !buttonName) {
+            console.error(`Invalid data in CSV at line ${i + 1}: roleName="${roleName}", buttonName="${buttonName}"`);
+            continue; // Skip this iteration if data is invalid
+        }
+
         const button = new ButtonBuilder()
             .setCustomId(roleName)
             .setLabel(buttonName)
@@ -61,34 +68,35 @@ async function createButtonsFromCSV() {
     return messages;
 }
 
-// Runs when someone presses a button.
 client.on('interactionCreate', async interaction => {
     if (!interaction.isButton()) return;
     
-    try{
-        interaction.deferReply();
+    try {
+        await interaction.deferReply({ ephemeral: true }); // Acknowledge the interaction
+
         const { member, guild } = interaction;
         const role = guild.roles.cache.find(role => role.name === interaction.customId);
 
         if (!role) {
-            await interaction.reply({ content: 'Role not found.', ephemeral: true });
-            console.error(`Role not found: ${role.name}`);
+            await interaction.editReply({ content: 'Role not found.' }); // Use editReply to send the response
+            console.error(`Role not found: ${interaction.customId}`);
             return;
         }
 
         if (member.roles.cache.has(role.id)) {
             await member.roles.remove(role);
             console.log(`Role ${role.name} removed from user ${member.displayName}`);
-            await interaction.reply({ content: `Role "${role.name}" removed.`, ephemeral: true });
+            await interaction.editReply({ content: `Role "${role.name}" removed.` }); // Use editReply here
         } else {
             await member.roles.add(role);
             console.log(`Role ${role.name} added to user ${member.displayName}`);
-            await interaction.reply({ content: `Role "${role.name}" added.`, ephemeral: true });
+            await interaction.editReply({ content: `Role "${role.name}" added.` }); // Use editReply here
         }
-    }catch(e){
+    } catch (e) {
         console.error(e);
     }
 });
+
 
 
 async function deleteAllMessagesInChannel(channel) {

@@ -10,6 +10,6 @@
   "author": "MajorMongoose/MajMongoose",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "discord.js": "^14.14.1"
+    "discord.js": "^14.15.3"
   }
 }
